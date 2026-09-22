@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#171522">
+  <meta name="description" content="Zehra vs Samiye — günlük focus battle">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Zehra vs Samiye — Lock In</title>
+</head>
+<body>
+  <div id="toastHost"></div>
+  <div id="confetti" aria-hidden="true"></div>
+
+  <main class="shell">
+    <section id="setupView" class="setup">
+      <div class="setup-card glass">
+        <div class="eyebrow">📚 BESTIE FOCUS BATTLE</div>
+        <h1>Zehra <span>vs</span> Samiye</h1>
+        <div class="lockin">LOCK IN</div>
+        <p class="lead">Günlük çalışma yarışınız. Kazanan kutlanır. Kaybeden biraz zorbalanır.</p>
+
+        <div class="identity">
+          <span>Ben:</span>
+          <button class="choice active" data-me="z">🌸 Zehra</button>
+          <button class="choice" data-me="s">💜 Samiye</button>
+        </div>
+
+        <div class="setup-actions">
+          <button id="createRoom" class="btn primary xl">✨ Yeni oda oluştur</button>
+          <div class="join-row">
+            <input id="roomCodeInput" maxlength="10" autocomplete="off" placeholder="ODA KODU">
+            <button id="joinRoom" class="btn secondary">Katıl</button>
+          </div>
+        </div>
+
+        <div id="configWarning" class="config-warning hidden">
+          <strong>Bir kerelik Firebase ayarı gerekiyor.</strong>
+          <span>ZIP içindeki <code>firebase-config.js</code> dosyasına Firebase config'ini yapıştır. README'de kısa adımlar var.</span>
+        </div>
+
+        <p class="micro">Hesap/şifre yok • iki cihaz canlı senkron • mobil uyumlu</p>
+      </div>
+    </section>
+
+    <section id="appView" class="hidden">
+      <header class="app-header">
+        <div>
+          <div class="eyebrow">LIVE STUDY ROOM</div>
+          <h2>Zehra <span>vs</span> Samiye</h2>
+          <p id="dateLabel" class="muted"></p>
+        </div>
+        <div class="header-actions">
+          <button id="installBtn" class="icon-btn hidden" title="Ana ekrana ekle">📲</button>
+          <button id="notifyBtn" class="icon-btn" title="Bildirim">🔔</button>
+          <button id="settingsBtn" class="icon-btn" title="Ayarlar">⚙️</button>
+          <button id="shareRoom" class="room-pill">
+            <small>ODA</small>
+            <strong id="roomCodeLabel">------</strong>
+            <span>⧉</span>
+          </button>
+        </div>
+      </header>
+
+      <div id="connectionBar" class="connection hidden"></div>
+      <div id="nudgeBar" class="nudge hidden"></div>
+
+      <section class="weekly-banner card">
+        <div class="trophy">🏆</div>
+        <div class="grow">
+          <div class="eyebrow">THIS WEEK</div>
+          <h3 id="weekTitle">Haftalık kupa ortada</h3>
+          <p id="weekSubtitle" class="muted">İlk tamamlanan günden sonra yarış başlar.</p>
+        </div>
+        <div class="week-score">
+          <div><span>🌸</span><b id="weekZ">0</b></div>
+          <i>—</i>
+          <div><span>💜</span><b id="weekS">0</b></div>
+        </div>
+      </section>
+
+      <section class="goal-card card">
+        <div>
+          <div class="eyebrow">DAILY TARGET</div>
+          <strong><span id="goalLabel">180</span> dk / kişi</strong>
+        </div>
+        <button id="editGoal" class="btn tertiary">Hedefi değiştir</button>
+      </section>
+
+      <section class="arena">
+        <article class="player-card zehra">
+          <div class="player-head">
+            <div>
+              <div class="avatar">🌸</div>
+              <h3>Zehra</h3>
+              <p>focus queen in training</p>
+            </div>
+            <div id="zRank" class="rank">TIE</div>
+          </div>
+
+          <div class="minutes"><b id="zMinutes">0</b><span>dk bugün</span></div>
+          <div class="progress"><div id="zProgress"></div></div>
+
+          <div class="timer-wrap">
+            <div id="zTimer" class="timer">00:00:00</div>
+            <div id="zMode" class="timer-mode">Free focus</div>
+          </div>
+
+          <div class="button-grid">
+            <button id="zFree" class="btn z-main">▶ Free</button>
+            <button class="btn soft" data-pomo="25" data-player="z">🍅 25</button>
+            <button class="btn soft" data-pomo="50" data-player="z">🧠 50</button>
+            <button class="btn soft" data-add="25" data-player="z">+25 dk</button>
+          </div>
+
+          <div class="stats">
+            <span>🔥 <b id="zStreak">0</b> streak</span>
+            <span>🏆 <b id="zWins">0</b> win</span>
+            <span>🍅 <b id="zSessions">0</b> session</span>
+          </div>
+
+          <button class="nudge-button" data-nudge="z">😈 Zehra'ya dürtme gönder</button>
+        </article>
+
+        <div class="vs">VS</div>
+
+        <article class="player-card samiye">
+          <div class="player-head">
+            <div>
+              <div class="avatar">💜</div>
+              <h3>Samiye</h3>
+              <p>no excuses department</p>
+            </div>
+            <div id="sRank" class="rank">TIE</div>
+          </div>
+
+          <div class="minutes"><b id="sMinutes">0</b><span>dk bugün</span></div>
+          <div class="progress"><div id="sProgress"></div></div>
+
+          <div class="timer-wrap">
+            <div id="sTimer" class="timer">00:00:00</div>
+            <div id="sMode" class="timer-mode">Free focus</div>
+          </div>
+
+          <div class="button-grid">
+            <button id="sFree" class="btn s-main">▶ Free</button>
+            <button class="btn soft" data-pomo="25" data-player="s">🍅 25</button>
+            <button class="btn soft" data-pomo="50" data-player="s">🧠 50</button>
+            <button class="btn soft" data-add="25" data-player="s">+25 dk</button>
+          </div>
+
+          <div class="stats">
+            <span>🔥 <b id="sStreak">0</b> streak</span>
+            <span>🏆 <b id="sWins">0</b> win</span>
+            <span>🍅 <b id="sSessions">0</b> session</span>
+          </div>
+
+          <button class="nudge-button" data-nudge="s">😈 Samiye'ye dürtme gönder</button>
+        </article>
+      </section>
+
+      <section class="live-card card">
+        <div>
+          <div class="eyebrow">LIVE SCORE</div>
+          <h3 id="leaderText">Henüz beraberlik 👀</h3>
+          <p id="gapText" class="muted">Bugünün savaşı daha yeni başlıyor.</p>
+        </div>
+        <div id="roastBox" class="roast">Kaybeden belli olunca sistem nazik olmayacak.</div>
+      </section>
+
+      <nav class="tabs">
+        <button class="tab active" data-tab="overview">📊 Overview</button>
+        <button class="tab" data-tab="history">📚 History</button>
+        <button class="tab" data-tab="wrapped">✨ Wrapped</button>
+        <button class="tab" data-tab="fun">🎡 Fun</button>
+      </nav>
+
+      <section id="overviewPanel" class="panel">
+        <div class="dashboard">
+          <article class="card chart-card">
+            <div class="section-head">
+              <div>
+                <div class="eyebrow">LAST 7 BATTLES</div>
+                <h3>Haftalık Form</h3>
+              </div>
+            </div>
+            <div id="weekChart" class="chart"></div>
+          </article>
+
+          <article class="card mini-summary">
+            <div class="eyebrow">TODAY</div>
+            <h3>Battle Summary</h3>
+            <div class="summary-grid">
+              <div><small>Toplam</small><b id="todayTotal">0</b><span>dk</span></div>
+              <div><small>Fark</small><b id="todayGap">0</b><span>dk</span></div>
+              <div><small>Session</small><b id="todaySessions">0</b><span>adet</span></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="historyPanel" class="panel hidden">
+        <article class="card list-card">
+          <div class="section-head">
+            <div><div class="eyebrow">FOCUS LOG</div><h3>Son session'lar</h3></div>
+          </div>
+          <div id="sessionList"></div>
+        </article>
+        <article class="card list-card">
+          <div class="section-head">
+            <div><div class="eyebrow">DAILY RESULTS</div><h3>Son günler</h3></div>
+          </div>
+          <div id="historyList"></div>
+        </article>
+      </section>
+
+      <section id="wrappedPanel" class="panel hidden">
+        <article class="wrapped card">
+          <div class="wrapped-top">
+            <div>
+              <div class="eyebrow">MONTHLY WRAPPED</div>
+              <h3 id="wrappedMonth">Bu ay</h3>
+              <p id="wrappedHeadline" class="muted">Biraz data biriksin 👀</p>
+            </div>
+            <div id="wrappedEmoji" class="wrapped-emoji">📚</div>
+          </div>
+          <div class="wrapped-grid">
+            <div><small>🌸 Zehra</small><b id="wrapZMin">0</b><span>dakika</span></div>
+            <div><small>💜 Samiye</small><b id="wrapSMin">0</b><span>dakika</span></div>
+            <div><small>🏆 Zehra</small><b id="wrapZWins">0</b><span>galibiyet</span></div>
+            <div><small>🏆 Samiye</small><b id="wrapSWins">0</b><span>galibiyet</span></div>
+            <div><small>🍅 Sessions</small><b id="wrapSessions">0</b><span>toplam</span></div>
+            <div><small>⚡ Longest</small><b id="wrapLongest">0</b><span>dakika</span></div>
+          </div>
+          <div id="wrappedQuote" class="roast"></div>
+          <button id="copyWrapped" class="btn primary">📋 Wrapped'ı kopyala</button>
+        </article>
+      </section>
+
+      <section id="funPanel" class="panel hidden">
+        <div class="dashboard">
+          <article class="card fun-card">
+            <div class="eyebrow">LOSER MODE</div>
+            <h3>Ceza Ruleti 🎡</h3>
+            <p id="punishmentText" class="muted">Günün kaybedenine görev seç.</p>
+            <button id="spinPunishment" class="btn tertiary">Ruleti çevir</button>
+          </article>
+          <article class="card fun-card">
+            <div class="eyebrow">MANUAL ADD</div>
+            <h3>Unuttuğun süreyi ekle</h3>
+            <div class="manual-grid">
+              <button class="btn soft" data-custom="z">🌸 Zehra</button>
+              <button class="btn soft" data-custom="s">💜 Samiye</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="finish-card card">
+        <div>
+          <div class="eyebrow">END OF DAY</div>
+          <h3>Skoru kilitle & kazananı ilan et</h3>
+          <p class="muted">Çalışan timer'lar otomatik eklenir. Bugün yalnızca bir kez kilitlenir.</p>
+        </div>
+        <button id="finishDay" class="btn primary xl">🏁 Günü Bitir</button>
+      </section>
+
+      <footer>
+        <span>🌸 Zehra vs Samiye — Lock In</span>
+        <button id="leaveRoom">Odadan çık</button>
+      </footer>
+    </section>
+  </main>
+
+  <dialog id="resultDialog" class="dialog">
+    <div class="dialog-inner result-dialog">
+      <div id="resultEmoji" class="result-emoji">🏆</div>
+      <div class="eyebrow">TODAY'S VERDICT</div>
+      <h2 id="resultTitle">Kazanan!</h2>
+      <p id="resultScore" class="muted"></p>
+      <div id="resultRoast" class="roast"></div>
+      <button id="closeResult" class="btn primary xl">Tamam, yarın rövanş 😌</button>
+    </div>
+  </dialog>
+
+  <dialog id="settingsDialog" class="dialog">
+    <div class="dialog-inner settings-dialog">
+      <div class="section-head">
+        <div><div class="eyebrow">ROOM SETTINGS</div><h2>Ayarlar</h2></div>
+        <button class="x" data-close="settingsDialog">×</button>
+      </div>
+
+      <label>
+        <span>Günlük hedef (dk)</span>
+        <input id="settingsGoal" type="number" min="10" step="10">
+      </label>
+      <label>
+        <span>🌸 Zehra kaybederse custom roast</span>
+        <textarea id="zRoasts" placeholder="Her satıra bir mesaj..."></textarea>
+      </label>
+      <label>
+        <span>💜 Samiye kaybederse custom roast</span>
+        <textarea id="sRoasts" placeholder="Her satıra bir mesaj..."></textarea>
+      </label>
+      <label>
+        <span>🎡 Custom cezalar</span>
+        <textarea id="punishments" placeholder="Her satıra bir ceza..."></textarea>
+      </label>
+      <button id="saveSettings" class="btn primary xl">Kaydet & senkronize et</button>
+    </div>
+  </dialog>
+
+  <dialog id="goalDialog" class="dialog">
+    <div class="dialog-inner small-dialog">
+      <h3>Günlük hedef</h3>
+      <input id="goalInput" type="number" min="10" step="10">
+      <div class="dialog-actions">
+        <button class="btn secondary" data-close="goalDialog">İptal</button>
+        <button id="saveGoal" class="btn primary">Kaydet</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
